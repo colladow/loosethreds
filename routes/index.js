@@ -13,14 +13,24 @@ exports.login = function(req, res){
   res.render('login');
 };
 
+exports.logout = function(req, res){
+  if(typeof req.session.user !== 'undefined'){
+    delete req.session.user;
+  }
+
+  res.redirect('/');
+};
+
 exports.authenticate = function(req, res, next){
   if(typeof req.session.user !== 'undefined'){
+    req.flash('info', 'You are already logged in.');
     res.redirect('/');
     return;
   }
 
   if(req.param('username') === '' || req.param('password') === ''){
-    next(new Error('Please fill in all required fields.'));
+    req.flash('error', 'Please fill in all required fields.');
+    res.render('login');
     return;
   }
 
@@ -33,14 +43,16 @@ exports.authenticate = function(req, res, next){
     }
 
     if(users.length === 0){
-      res.redirect('/login');
+      req.flash('error', 'Your username/password combination is incorrect.');
+      res.render('login');
       return;
     };
 
     user = users[0];
 
     if(!user.checkPassword(req.param('password'))){
-      res.redirect('/login');
+      req.flash('error', 'Your username/password combination is incorrect.');
+      res.render('login');
       return;
     }
 
@@ -51,6 +63,7 @@ exports.authenticate = function(req, res, next){
 
 exports.register = function(req, res){
   if(typeof req.session.user !== 'undefined'){
+    req.flash('info', 'You are already logged in.');
     res.redirect('/');
     return;
   }

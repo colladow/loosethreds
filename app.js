@@ -39,6 +39,7 @@ app.dynamicHelpers({ messages: require('express-messages') });
 app.get('/', routes.index);
 app.get('/login', routes.login);
 app.post('/authenticate', routes.authenticate);
+app.get('/logout', routes.logout);
 app.get('/register', routes.register);
 
 app.get('/users', routes.users.index);

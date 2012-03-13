@@ -5,7 +5,8 @@ exports.index = function(req, res){
 
 exports.create = function(req, res, next){
   if(typeof req.session.user !== 'undefined'){
-    next(new Error('You are already registered.'));
+    req.flash('info', 'You are already logged in.');
+    res.redirect('/');
     return;
   }
 
@@ -13,12 +14,14 @@ exports.create = function(req, res, next){
      req.param('username') === '' ||
      req.param('email') === ''    ||
      req.param('name') === ''){
-    next(new Error('Please fill in all required fields.'));
+    req.flash('error', 'Please fill in all required fields.');
+    res.render('register');
     return;
   }
 
   if(req.param('password_confirmation') !== req.param('password')){
-    next(new Error('Password fields must match.'));
+    req.flash('error', 'The password fields must match.');
+    res.render('register');
     return;
   }
 
@@ -30,7 +33,8 @@ exports.create = function(req, res, next){
     }
 
     if(users.length > 0){
-      next(new Error('A user already exists with that email and/or username.'));
+      req.flash('error', 'A user already exists with that email and/or username.');
+      res.render('register');
       return;
     }
 
