@@ -17,7 +17,7 @@ app.configure(function(){
   app.use(express.bodyParser());
   app.use(express.methodOverride());
   app.use(express.cookieParser());
-  app.use(express.session({ secret: 'your secret here' }));
+  app.use(express.session({ secret: 'adijd21ij212oe0d0wakdo;ja2j3u' }));
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
 });
@@ -35,15 +35,23 @@ app.configure('production', function(){
 // Routes
 
 app.get('/', routes.index);
+app.get('/login', routes.login);
+app.get('/register', routes.register);
 
-app.post('/upload', function(req, res){
-  fs.readFile(req.files.newImage.path, function (err, data) {
-    var newPath = __dirname + '/public/uploads/' + req.files.newImage.name;
-    fs.writeFile(newPath, data, function (err) {
-      res.redirect("back");
-    });
-  });
-});
+app.get('/users', routes.users.index);
+app.post('/users', routes.users.create);
+app.get('/users/:id', routes.users.view);
+app.put('/users/:id', routes.users.update);
+app.delete('/users/:id', routes.users.delete);
+
+//app.post('/upload', function(req, res){
+//  fs.readFile(req.files.newImage.path, function (err, data) {
+//    var newPath = __dirname + '/public/uploads/' + req.files.newImage.name;
+//    fs.writeFile(newPath, data, function (err) {
+//      res.redirect("back");
+//    });
+//  });
+//});
 
 app.listen(3000);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
