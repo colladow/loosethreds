@@ -9,16 +9,16 @@ exports.create = function(req, res, next){
     return;
   }
 
-  if(req.param('password_confirmation') !== req.param('password')){
-    next(new Error('Password fields must match.'));
-    return;
-  }
-
   if(req.param('password') === '' ||
      req.param('username') === '' ||
      req.param('email') === ''    ||
      req.param('name') === ''){
     next(new Error('Please fill in all required fields.'));
+    return;
+  }
+
+  if(req.param('password_confirmation') !== req.param('password')){
+    next(new Error('Password fields must match.'));
     return;
   }
 
@@ -38,6 +38,7 @@ exports.create = function(req, res, next){
       username: req.param('username'),
       name: req.param('name'),
       email: req.param('email'),
+      password: req.param('password')
     };
 
     userModel.save(user, function(err, savedUser){
@@ -46,11 +47,7 @@ exports.create = function(req, res, next){
         return;
       }
 
-      savedUser.setPassword(req.param('password'), function(err, success){
-        if(success){
-          res.redirect('/users/' + savedUser.username);
-        }
-      });
+      res.redirect('/users/' + savedUser.username.toLowerCase());
     });
   });
 };

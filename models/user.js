@@ -97,6 +97,13 @@ module.exports = function(){
   self.save = function(user, callback){
     var data = dehydrateUser(user);
 
+    if(typeof data.password !== 'undefined'){
+      data.salt = bcrypt.genSaltSync(10);
+      data.hash = generateHash(data.password, data.salt);
+
+      delete data.password;
+    }
+
     db.users.save(data, function(err, user){
       if(err){
         callback(err);

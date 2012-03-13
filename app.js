@@ -32,10 +32,13 @@ app.configure('production', function(){
   app.use(express.errorHandler());
 });
 
+app.dynamicHelpers({ messages: require('express-messages') });
+
 // Routes
 
 app.get('/', routes.index);
 app.get('/login', routes.login);
+app.post('/authenticate', routes.authenticate);
 app.get('/register', routes.register);
 
 app.get('/users', routes.users.index);
