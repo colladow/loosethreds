@@ -1,4 +1,6 @@
-var userModel = require('../models/user');
+var userModel = require('../models/user'),
+    fs = require('fs'),
+    path = require('path');
 
 exports.index = function(req, res){
 };
@@ -51,17 +53,65 @@ exports.create = function(req, res, next){
         return;
       }
 
-      res.redirect('/users/' + savedUser.username.toLowerCase());
+      req.session.user = user;
+      res.redirect('/');
     });
   });
 };
 
-exports.view = function(req, res, next){
-  res.render('view', { user: req.param('id') });
+exports.show = function(req, res, next){
+  res.render('users/show', { user: userModel.buildUser(req.session.user) });
 };
 
 exports.update = function(req, res){
 };
 
 exports.delete = function(req, res){
+};
+
+exports.images = {
+  index: function(req, res){},
+  create: function(req, res, next){
+    fs.readFile(req.files.image.path, function (err, data) {
+      var user  = userModel.buildUser(req.session.user),
+          dir   = path.join('/images', user.path()),
+          fname = path.join(dir, req.files.image.name),
+          dir   = path.join(req.app.settings.imagedir, dir);
+
+      path.exists(dir, function(exists){
+        if(!exists){
+          fs.mkdirSync(dir);
+        }
+
+        fs.writeFile(path.join(dir, req.files.image.name), data, function (err) {
+          var image;
+
+          if(err){
+            next(err);
+            return;
+          }
+
+          if(typeof user.images === 'undefined'){
+            user.images = [];
+            user.imageId = 0;
+          }
+
+          image = {};
+          image[user.imageId] = fname;
+
+          user.images.push(image);
+          user.imageId += 1;
+
+          user.save(function(err){
+            if(err){
+              next(err);
+              return;
+            }
+
+            res.redirect('/');
+          });
+        });
+      });
+    });
+  }
 };

@@ -1,7 +1,7 @@
 var userModel = require('../models/user');
 
 exports.index = function(req, res){
-  res.render('index');
+  res.render('index', { user: userModel.buildUser(req.session.user) });
 };
 
 exports.login = function(req, res){

@@ -17,33 +17,40 @@ module.exports = function(){
         }
 
         return data;
-      },
-      buildUser = function(user){
-        user.save = function(callback){
-          var changes = dehydrateUser(user);
-
-          self.update({ _id: user._id }, changes, {}, callback);
-        };
-
-        user.setPassword = function(password, callback){
-          user.salt = bcrypt.genSaltSync(10);
-          user.hash = generateHash(password, user.salt);
-
-          user.save(callback);
-        };
-
-        user.checkPassword = function(password){
-          var testHash = generateHash(password, user.salt);
-
-          return user.hash === testHash;
-        };
-
-        user.destroy = function(callback){
-          self.destroy(user, callback);
-        };
-
-        return user;
       };
+      
+  self.buildUser = function(user){
+    if(typeof user === 'undefined'){ return; }
+
+    user.save = function(callback){
+      var changes = dehydrateUser(user);
+
+      self.update({ _id: user._id }, changes, {}, callback);
+    };
+
+    user.setPassword = function(password, callback){
+      user.salt = bcrypt.genSaltSync(10);
+      user.hash = generateHash(password, user.salt);
+
+      user.save(callback);
+    };
+
+    user.checkPassword = function(password){
+      var testHash = generateHash(password, user.salt);
+
+      return user.hash === testHash;
+    };
+
+    user.destroy = function(callback){
+      self.destroy(user, callback);
+    };
+
+    user.path = function(){
+      return user.username.toLowerCase();
+    };
+
+    return user;
+  };
   
   self.all = function(callback){
     db.users.find(callback);
@@ -61,7 +68,7 @@ module.exports = function(){
         return;
       }
 
-      callback(null, buildUser(user[0]));
+      callback(null, self.buildUser(user[0]));
     });
   };
 
@@ -75,7 +82,7 @@ module.exports = function(){
       }
 
       for(var i = 0, l = docs.length; i < l; i++){
-        users.push(buildUser(docs[i]));
+        users.push(self.buildUser(docs[i]));
       }
 
       callback(null, users);
@@ -110,7 +117,7 @@ module.exports = function(){
         return;
       }
 
-      callback(null, buildUser(user));
+      callback(null, self.buildUser(user));
     });
   };
 

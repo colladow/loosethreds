@@ -20,12 +20,24 @@ app.configure(function(){
   app.use(express.session({ secret: 'adijd21ij212oe0d0wakdo;ja2j3u' }));
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
+
+  app.set('server-port', 80);
 });
 
 app.configure('development', function(){
+  var hostname = require('os').hostname();
+
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+
+  app.set('server-port', 3000);
+
   app.set('mongo-host', 'localhost');
   app.set('mongo-port', '27017');
+
+  app.set('imagedir', __dirname + '/uploads');
+  app.set('imagepath', 'http://' + hostname + ':' + app.settings['server-port'] + '/uploads');
+
+  app.use(express.static(app.settings.imagedir));
 });
 
 app.configure('production', function(){
@@ -48,14 +60,9 @@ app.get('/users/:id', routes.users.view);
 app.put('/users/:id', routes.users.update);
 app.delete('/users/:id', routes.users.delete);
 
-//app.post('/upload', function(req, res){
-//  fs.readFile(req.files.newImage.path, function (err, data) {
-//    var newPath = __dirname + '/public/uploads/' + req.files.newImage.name;
-//    fs.writeFile(newPath, data, function (err) {
-//      res.redirect("back");
-//    });
-//  });
-//});
+app.post('/users/:id/images', routes.users.images.create);
 
-app.listen(3000);
+app.listen(app.settings['server-port']);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+
+exports.app = app;
