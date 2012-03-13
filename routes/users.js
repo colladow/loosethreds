@@ -2,7 +2,7 @@ var userModel = require('../models/user'),
     fs = require('fs'),
     path = require('path');
 
-exports.index = function(req, res){
+exports.index = function(req, res, next){
 };
 
 exports.create = function(req, res, next){
@@ -44,7 +44,8 @@ exports.create = function(req, res, next){
       username: req.param('username'),
       name: req.param('name'),
       email: req.param('email'),
-      password: req.param('password')
+      password: req.param('password'),
+      path: req.param('username').toLowerCase()
     };
 
     userModel.save(user, function(err, savedUser){
@@ -60,7 +61,23 @@ exports.create = function(req, res, next){
 };
 
 exports.show = function(req, res, next){
-  res.render('users/show', { user: userModel.buildUser(req.session.user) });
+  userModel.where({ path: req.param('id') }, function(err, users){
+    var user;
+
+    if(err){
+      next(err);
+      return;
+    }
+
+    if(users.length === 0){
+      next(new Error('User not found.'));
+      return;
+    }
+
+    user = userModel.buildUser(users[0]);
+
+    res.render('users/show.jade', { user: user, imagepath: req.app.settings.imagepath });
+  });
 };
 
 exports.update = function(req, res){
@@ -74,7 +91,7 @@ exports.images = {
   create: function(req, res, next){
     fs.readFile(req.files.image.path, function (err, data) {
       var user  = userModel.buildUser(req.session.user),
-          dir   = path.join('/images', user.path()),
+          dir   = path.join('/images', user.path),
           fname = path.join(dir, req.files.image.name),
           dir   = path.join(req.app.settings.imagedir, dir);
 

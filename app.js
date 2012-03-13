@@ -35,7 +35,7 @@ app.configure('development', function(){
   app.set('mongo-port', '27017');
 
   app.set('imagedir', __dirname + '/uploads');
-  app.set('imagepath', 'http://' + hostname + ':' + app.settings['server-port'] + '/uploads');
+  app.set('imagepath', 'http://' + hostname + ':' + app.settings['server-port']);
 
   app.use(express.static(app.settings.imagedir));
 });
@@ -56,7 +56,7 @@ app.get('/register', routes.register);
 
 app.get('/users', routes.users.index);
 app.post('/users', routes.users.create);
-app.get('/users/:id', routes.users.view);
+app.get('/users/:id', routes.users.show);
 app.put('/users/:id', routes.users.update);
 app.delete('/users/:id', routes.users.delete);
 

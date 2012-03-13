@@ -54,10 +54,6 @@ module.exports = function(){
       self.destroy(user, callback);
     };
 
-    user.path = function(){
-      return user.username.toLowerCase();
-    };
-
     return user;
   };
   
@@ -66,7 +62,11 @@ module.exports = function(){
   };
 
   self.find = function(id, callback){
-    db.users.find({ _id: mongo.ObjectId }, function(err, user){
+    if(typeof id === 'string'){
+      id = mongo.ObjectId(id);
+    }
+
+    db.users.find({ _id: id }, function(err, user){
       if(err){
         callback(err);
         return;
