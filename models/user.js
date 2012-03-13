@@ -23,9 +23,18 @@ module.exports = function(){
     if(typeof user === 'undefined'){ return; }
 
     user.save = function(callback){
-      var changes = dehydrateUser(user);
+      var id = null,
+          changes = dehydrateUser(user);
 
-      self.update({ _id: user._id }, changes, {}, callback);
+      if(typeof user._id === 'string'){
+        id = mongo.ObjectId(user._id);
+      }else{
+        id = user._id
+      }
+
+      delete changes._id;
+
+      self.update({ _id: id }, changes, {}, callback);
     };
 
     user.setPassword = function(password, callback){
