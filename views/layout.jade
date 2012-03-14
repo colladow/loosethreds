@@ -6,4 +6,12 @@ html
   body
     != messages()
 
+    nav
+      a(href="/") Home
+      - if(typeof user === 'undefined')
+        a(href="/login") Login
+      - else
+        a(href="/logout") Logout
+        a(href="/users/#{user.path}") My Account
+
     != body

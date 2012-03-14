@@ -1,6 +1,8 @@
 var userModel = require('../models/user'),
-    fs = require('fs'),
-    path = require('path');
+    fs        = require('fs'),
+    path      = require('path'),
+    http      = require('http'),
+    url       = require('url');
 
 exports.index = function(req, res, next){
 };
@@ -93,7 +95,7 @@ exports.images = {
       var user    = userModel.buildUser(req.session.user),
           midPath = path.join('/images', user.path),
           dir     = path.join(req.app.settings.imagedir, midPath),
-          fname, filePath, dir;
+          fname, filePath;
           
       if(typeof user.images === 'undefined'){
         user.images = {};
@@ -150,6 +152,85 @@ exports.images = {
       }
 
       fs.unlink(path.join(req.app.settings.imagedir, image.path), function(err){
+        if(err){
+          next(err);
+          return;
+        }
+
+        req.flash('info', 'The image has been removed successfully.');
+        res.redirect('/users/' + user.path);
+      });
+    });
+  }
+};
+
+exports.urls = {
+  index: function(){},
+  create: function(req, res, next){
+    var user = userModel.buildUser(req.session.user),
+        fileUrl = req.param('url'),
+        midPath = path.join('/images', user.path),
+        dir     = path.join(req.app.settings.imagedir, midPath),
+        options = {
+          host: url.parse(fileUrl).host,
+          port: 80,
+          path: url.parse(fileUrl).pathname
+        },
+        imageUrl, fname, file;
+
+    if(typeof user.urls === 'undefined'){
+      user.urls = {};
+      user.urlId = 0;
+    }
+
+    fname = user.urlId + '.' + options.path.split('/').pop();
+    file = fs.createWriteStream(path.join(dir, fname));
+
+    path.exists(dir, function(exists){
+      if(!exists){
+        fs.mkdirSync(dir);
+      }
+
+      http.get(options, function(imageRes){
+        imageRes.on('data', function(data){
+          file.write(data);
+        }).on('end', function(){
+          file.end();
+
+          imageUrl = {
+            path: path.join(midPath, fname)
+          };
+
+          user.urls[user.urlId] = imageUrl;
+          user.urlId += 1;
+
+          user.save(function(err){
+            if(err){
+              next(err);
+              return;
+            }
+
+            res.redirect('/');
+          });
+        });
+      });
+    });
+  },
+  delete: function(req, res, next){
+    var user  = userModel.buildUser(req.session.user),
+        urlId = req.param('urlid'),
+        imageUrl = user.urls[urlId],
+        change = {};
+
+    change['urls.' + urlId] = 1;
+
+    userModel.update({ path: user.path }, { $unset: change }, {}, function(err){
+      if(err){
+        next(err);
+        return;
+      }
+
+      fs.unlink(path.join(req.app.settings.imagedir, imageUrl.path), function(err){
         if(err){
           next(err);
           return;

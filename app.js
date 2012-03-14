@@ -63,6 +63,9 @@ app.delete('/users/:id', routes.users.delete);
 app.post('/users/:id/images', routes.users.images.create);
 app.delete('/users/:id/images/:imageid', routes.users.images.delete);
 
+app.post('/users/:id/urls', routes.users.urls.create);
+app.delete('/users/:id/urls/:urlid', routes.users.urls.delete);
+
 app.listen(app.settings['server-port']);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
 
