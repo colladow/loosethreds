@@ -3,6 +3,5 @@ h1= user.username
 ul
   each image in user.images
     li
-      each path, id in image
-        a(href="/users/#{user.path}/images/#{id}")
-          img(src="#{imagepath}#{path}")
+      a(href="/users/#{user.path}/images/#{image.id}")
+        img(src="#{imagepath}#{image.path}")

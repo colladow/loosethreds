@@ -114,7 +114,8 @@ exports.images = {
           }
 
           image = {};
-          image[user.imageId] = fname;
+          image.id = user.imageId;
+          image.path = fname;
 
           user.images.push(image);
           user.imageId += 1;
