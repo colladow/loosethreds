@@ -90,17 +90,25 @@ exports.images = {
   index: function(req, res){},
   create: function(req, res, next){
     fs.readFile(req.files.image.path, function (err, data) {
-      var user  = userModel.buildUser(req.session.user),
-          dir   = path.join('/images', user.path),
-          fname = path.join(dir, req.files.image.name),
-          dir   = path.join(req.app.settings.imagedir, dir);
+      var user    = userModel.buildUser(req.session.user),
+          midPath = path.join('/images', user.path),
+          dir     = path.join(req.app.settings.imagedir, midPath),
+          fname, filePath, dir;
+          
+      if(typeof user.images === 'undefined'){
+        user.images = {};
+        user.imageId = 0;
+      }
+      
+      fname    = user.imageId + '.' + req.files.image.name;
+      filePath = path.join(dir, fname)
 
       path.exists(dir, function(exists){
         if(!exists){
           fs.mkdirSync(dir);
         }
 
-        fs.writeFile(path.join(dir, req.files.image.name), data, function (err) {
+        fs.writeFile(filePath, data, function (err) {
           var image;
 
           if(err){
@@ -108,16 +116,11 @@ exports.images = {
             return;
           }
 
-          if(typeof user.images === 'undefined'){
-            user.images = [];
-            user.imageId = 0;
-          }
+          image = {
+            path: path.join(midPath, fname)
+          };
 
-          image = {};
-          image.id = user.imageId;
-          image.path = fname;
-
-          user.images.push(image);
+          user.images[user.imageId] = image;
           user.imageId += 1;
 
           user.save(function(err){
@@ -129,6 +132,31 @@ exports.images = {
             res.redirect('/');
           });
         });
+      });
+    });
+  },
+  delete: function(req, res, next){
+    var user  = userModel.buildUser(req.session.user),
+        imageId = req.param('imageid'),
+        image = user.images[imageId],
+        change = {};
+
+    change['images.' + imageId] = 1;
+
+    userModel.update({ path: user.path }, { $unset: change }, {}, function(err){
+      if(err){
+        next(err);
+        return;
+      }
+
+      fs.unlink(path.join(req.app.settings.imagedir, image.path), function(err){
+        if(err){
+          next(err);
+          return;
+        }
+
+        req.flash('info', 'The image has been removed successfully.');
+        res.redirect('/users/' + user.path);
       });
     });
   }
