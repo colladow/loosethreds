@@ -182,9 +182,9 @@ exports.urls = {
         },
         imageUrl, fname, file;
 
-    if(typeof user.urls === 'undefined'){
-      user.urls = {};
-      user.urlId = 0;
+    if(typeof user.images === 'undefined'){
+      user.images = {};
+      user.imageId = 0;
     }
 
     fname = user.urlId + '.' + options.path.split('/').pop();
@@ -205,8 +205,8 @@ exports.urls = {
             path: path.join(midPath, fname)
           };
 
-          user.urls[user.urlId] = imageUrl;
-          user.urlId += 1;
+          user.images[user.imageId] = imageUrl;
+          user.imageId += 1;
 
           user.save(function(err){
             if(err){
