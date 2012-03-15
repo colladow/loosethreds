@@ -5,13 +5,22 @@
 
 var express = require('express')
   , routes = require('./routes')
-  , fs = require('fs');
+  , fs = require('fs')
+  , stylus = require('stylus');
 
 var app = module.exports = express.createServer();
 
-// Configuration
-
 app.configure(function(){
+  // Configuration
+  function compile(str, path) {
+    return stylus(str)
+      .set('filename', path)
+  };
+  app.use(stylus.middleware({
+    src: __dirname + '/public',
+    compile: compile
+  }));
+
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   app.use(express.bodyParser());

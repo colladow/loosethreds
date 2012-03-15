@@ -8,7 +8,7 @@ exports.index = function(req, res, next){
 };
 
 exports.create = function(req, res, next){
-  if(typeof req.session.user !== 'undefined'){
+  if(typeof req.session.currentUser !== 'undefined'){
     req.flash('info', 'You are already logged in.');
     res.redirect('/');
     return;
@@ -56,7 +56,7 @@ exports.create = function(req, res, next){
         return;
       }
 
-      req.session.user = user;
+      req.session.currentUser = user;
       res.redirect('/');
     });
   });
@@ -78,7 +78,11 @@ exports.show = function(req, res, next){
 
     user = userModel.buildUser(users[0]);
 
-    res.render('users/show.jade', { user: user, imagepath: req.app.settings.imagepath });
+    res.render('users/show.jade', {
+      user: user,
+      currentUser: req.session.currentUser,
+      imagepath: req.app.settings.imagepath
+    });
   });
 };
 
@@ -92,7 +96,7 @@ exports.images = {
   index: function(req, res){},
   create: function(req, res, next){
     fs.readFile(req.files.image.path, function (err, data) {
-      var user    = userModel.buildUser(req.session.user),
+      var user    = userModel.buildUser(req.session.currentUser),
           midPath = path.join('/images', user.path),
           dir     = path.join(req.app.settings.imagedir, midPath),
           fname, filePath;
@@ -138,7 +142,7 @@ exports.images = {
     });
   },
   delete: function(req, res, next){
-    var user  = userModel.buildUser(req.session.user),
+    var user  = userModel.buildUser(req.session.currentUser),
         imageId = req.param('imageid'),
         image = user.images[imageId],
         change = {};
@@ -167,7 +171,7 @@ exports.images = {
 exports.urls = {
   index: function(){},
   create: function(req, res, next){
-    var user = userModel.buildUser(req.session.user),
+    var user = userModel.buildUser(req.session.currentUser),
         fileUrl = req.param('url'),
         midPath = path.join('/images', user.path),
         dir     = path.join(req.app.settings.imagedir, midPath),
@@ -217,7 +221,7 @@ exports.urls = {
     });
   },
   delete: function(req, res, next){
-    var user  = userModel.buildUser(req.session.user),
+    var user  = userModel.buildUser(req.session.currentUser),
         urlId = req.param('urlid'),
         imageUrl = user.urls[urlId],
         change = {};

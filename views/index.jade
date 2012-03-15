@@ -1,9 +1,9 @@
 h1 loosethreds
 
-- if(typeof user !== 'undefined')
-  form(method="post", action="/users/#{user.path}/images", enctype="multipart/form-data")
+- if(typeof currentUser !== 'undefined')
+  form(method="post", action="/users/#{currentUser.path}/images", enctype="multipart/form-data")
     input(type="file", name="image")
     input(type="submit", name="submit", value="Submit")
-  form(method="post", action="/users/#{user.path}/urls")
+  form(method="post", action="/users/#{currentUser.path}/urls")
     input(type="text", name="url", placeholder="URL")
     input(type="submit", name="submit", value="Submit")

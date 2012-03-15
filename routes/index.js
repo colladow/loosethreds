@@ -1,11 +1,11 @@
 var userModel = require('../models/user');
 
 exports.index = function(req, res){
-  res.render('index', { user: userModel.buildUser(req.session.user) });
+  res.render('index', { currentUser: req.session.currentUser });
 };
 
 exports.login = function(req, res){
-  if(typeof req.session.user !== 'undefined'){
+  if(typeof req.session.currentUser !== 'undefined'){
     res.redirect('/');
     return;
   }
@@ -14,15 +14,15 @@ exports.login = function(req, res){
 };
 
 exports.logout = function(req, res){
-  if(typeof req.session.user !== 'undefined'){
-    delete req.session.user;
+  if(typeof req.session.currentUser !== 'undefined'){
+    delete req.session.currentUser;
   }
 
   res.redirect('/');
 };
 
 exports.authenticate = function(req, res, next){
-  if(typeof req.session.user !== 'undefined'){
+  if(typeof req.session.currentUser !== 'undefined'){
     req.flash('info', 'You are already logged in.');
     res.redirect('/');
     return;
@@ -56,13 +56,13 @@ exports.authenticate = function(req, res, next){
       return;
     }
 
-    req.session.user = user;
+    req.session.currentUser = user;
     res.redirect('/');
   });
 };
 
 exports.register = function(req, res){
-  if(typeof req.session.user !== 'undefined'){
+  if(typeof req.session.currentUser !== 'undefined'){
     req.flash('info', 'You are already logged in.');
     res.redirect('/');
     return;

@@ -1,17 +1,17 @@
 !!! 5
 html
   head
-    title Loose Threds
+    title loosethreds
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
     != messages()
 
     nav
       a(href="/") Home
-      - if(typeof user === 'undefined')
+      - if(typeof currentUser === 'undefined')
         a(href="/login") Login
       - else
         a(href="/logout") Logout
-        a(href="/users/#{user.path}") My Account
+        a(href="/users/#{currentUser.path}") My Account
 
     != body
