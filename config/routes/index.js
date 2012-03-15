@@ -1,6 +1,7 @@
 var home = require('../../app/controllers/home'),
     auth = require('../../app/controllers/auth'),
-    users = require('../../app/controllers/users');
+    users = require('../../app/controllers/users'),
+    middleware = require('../../app/middleware');
 
 module.exports = function(app){
   app.get('/', home.index);
@@ -18,9 +19,9 @@ module.exports = function(app){
   app.put('/users/:id', users.update);
   app.delete('/users/:id', users.delete);
 
-  app.post('/users/:id/images', users.images.create);
-  app.delete('/users/:id/images/:imageid', users.images.delete);
+  app.post('/users/:id/images', middleware.auth.restrict, users.images.create);
+  app.delete('/users/:id/images/:imageid', middleware.auth.restrict, users.images.delete);
 
-  app.post('/users/:id/urls', users.urls.create);
-  app.delete('/users/:id/urls/:urlid', users.urls.delete);
+  app.post('/users/:id/urls', middleware.auth.restrict, users.urls.create);
+  app.delete('/users/:id/urls/:urlid', middleware.auth.restrict, users.urls.delete);
 };
