@@ -4,7 +4,6 @@
  */
 
 var express = require('express')
-  , routes = require('./routes')
   , fs = require('fs')
   , stylus = require('stylus');
 
@@ -21,7 +20,7 @@ app.configure(function(){
     compile: compile
   }));
 
-  app.set('views', __dirname + '/views');
+  app.set('views', __dirname + '/app/views');
   app.set('view engine', 'jade');
   app.use(express.bodyParser());
   app.use(express.methodOverride());
@@ -56,24 +55,7 @@ app.configure('production', function(){
 app.dynamicHelpers({ messages: require('express-messages') });
 
 // Routes
-
-app.get('/', routes.index);
-app.get('/login', routes.login);
-app.post('/authenticate', routes.authenticate);
-app.get('/logout', routes.logout);
-app.get('/register', routes.register);
-
-app.get('/users', routes.users.index);
-app.post('/users', routes.users.create);
-app.get('/users/:id', routes.users.show);
-app.put('/users/:id', routes.users.update);
-app.delete('/users/:id', routes.users.delete);
-
-app.post('/users/:id/images', routes.users.images.create);
-app.delete('/users/:id/images/:imageid', routes.users.images.delete);
-
-app.post('/users/:id/urls', routes.users.urls.create);
-app.delete('/users/:id/urls/:urlid', routes.users.urls.delete);
+require('./config/routes')(app);
 
 app.listen(app.settings['server-port']);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
