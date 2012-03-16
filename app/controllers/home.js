@@ -7,7 +7,7 @@ exports.index = function(req, res){
       return;
     }
 
-    res.render('users/index', {
+    res.render('index', {
       users: users,
       currentUser: req.session.currentUser,
       imagepath: req.app.settings.imagepath

@@ -122,11 +122,71 @@ table {
   border-spacing: 0;
 }
 @import url("http://fonts.googleapis.com/css?family=Gudea:400,700,400italic");
+.clear {
+  clear: both;
+}
 body {
-  padding: 50px;
+  background-color: #333;
   font: 14px 'Gudea', Helvetica, 'serif';
 }
 a {
   color: #00b7ff;
   display: block;
+}
+h1 {
+  color: #fff;
+  font-size: 30px;
+  font-weight: bold;
+}
+h2 {
+  font-size: 20px;
+}
+header {
+  margin-left: 20px;
+  margin-bottom: 40px;
+}
+header h1 {
+  font-size: 90px;
+  font-weight: bold;
+}
+header h1 a,
+header h1 a:hover,
+header h1 a:active,
+header h1 a:visited {
+  color: #fff;
+  text-decoration: none;
+}
+header nav {
+  font-size: 20px;
+}
+header nav a {
+  display: block;
+  float: left;
+  margin-right: 168px;
+}
+section#body {
+  margin-left: 20px;
+}
+section#body h1 {
+  margin-bottom: 10px;
+}
+section#body h2 {
+  margin-bottom: 10px;
+}
+section#body article.user {
+  float: left;
+  height: 400px;
+  margin-right: 10px;
+  position: relative;
+  width: 300px;
+}
+section#body article.user h2,
+section#body article.user a {
+  text-align: center;
+  width: 300px;
+}
+section#body article.user img {
+  border: none;
+  max-height: 360px;
+  max-width: 300px;
 }

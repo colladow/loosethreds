@@ -1,17 +1,22 @@
 !!! 5
 html
   head
-    title loosethreds
+    title loose threds
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
-    != messages()
+    header
+      h1
+        a(href="/") loose threds
+      nav
+        a(href="/") home
+        - if(typeof currentUser === 'undefined')
+          a(href="/login") login
+        - else
+          a(href="/users/#{currentUser.path}") my threds
+          a(href="/logout") logout
+      .clear
 
-    nav
-      a(href="/") Home
-      - if(typeof currentUser === 'undefined')
-        a(href="/login") Login
-      - else
-        a(href="/logout") Logout
-        a(href="/users/#{currentUser.path}") My Account
+      != messages()
 
-    != body
+    section#body
+      != body

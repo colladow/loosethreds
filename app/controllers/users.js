@@ -106,14 +106,6 @@ exports.delete = function(req, res){
 
 exports.images = function(){
   var self = {},
-      prepareUser = function(user){
-        if(typeof user.images === 'undefined'){
-          user.images = {};
-          user.imageId = 0;
-        }
-
-        return user;
-      },
       handleFileUpload = function(req, res, next){
         fs.readFile(req.files.image.path, function (err, data) {
           var user    = userModel.buildUser(req.session.currentUser),
@@ -121,7 +113,10 @@ exports.images = function(){
               dir     = path.join(req.app.settings.imagedir, midPath),
               fname, filePath;
               
-          user = prepareUser(user);
+          if(typeof user.images === 'undefined'){
+            user.images = {};
+            user.imageId = 0;
+          }
           
           fname    = user.imageId + '.' + req.files.image.name;
           filePath = path.join(dir, fname)
@@ -170,7 +165,10 @@ exports.images = function(){
             },
             imageUrl, fname, file;
 
-        user = prepareUser(user);
+        if(typeof user.images === 'undefined'){
+          user.images = {};
+          user.imageId = 0;
+        }
 
         fname = user.imageId + '.' + options.path.split('/').pop();
         file = fs.createWriteStream(path.join(dir, fname));
