@@ -204,7 +204,37 @@ exports.images = function(){
         });
       };
 
-  self.index = function(req, res){},
+  self.show = function(req, res, next){
+    var imageId = req.param('imageid');
+
+    userModel.where({ path: req.param('id') }, function(err, users){
+      var user;
+
+      if(err){
+        next(err);
+        return;
+      }
+
+      if(users.length === 0){
+        next(new Error('User not found.'));
+        return;
+      }
+
+      user = userModel.buildUser(users[0]);
+
+      if(typeof user.images[imageId] === 'undefined'){
+        next(new Error('Image not found.'));
+        return;
+      }
+
+      res.render('users/image', {
+        user: user,
+        image: user.images[imageId],
+        currentUser: req.session.currentUser,
+        imagepath: req.app.settings.imagepath
+      });
+    });
+  },
 
   self.create = function(req, res, next){
     if(typeof req.param('url') !== 'undefined'){

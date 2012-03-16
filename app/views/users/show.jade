@@ -1,15 +1,16 @@
 h1= user.username
 
-ul
+ul#user_images
   - if(typeof user.images !== 'undefined')
     each image, id in user.images
-      li
+      li.box
         a(href="/users/#{user.path}/images/#{id}")
           img(src="#{imagepath}#{image.path}")
-        br
         - if(typeof currentUser !== 'undefined')
           form(method="post", action="/users/#{user.path}/images/#{id}")
             input(type="hidden", name="_method", value="delete")
             input(type="submit", name="submit", value="Delete")
 
-  include _upload_form
+.clear
+br
+include _upload_form

@@ -1,7 +1,10 @@
 - if(typeof currentUser !== 'undefined')
+  h2 Upload File
   form(method="post", action="/users/#{currentUser.path}/images", enctype="multipart/form-data")
     input(type="file", name="image")
-    input(type="submit", name="submit", value="Submit")
+    input.inline(type="submit", name="submit", value="Submit")
+
+  h2 Copy Web Image
   form(method="post", action="/users/#{currentUser.path}/images")
     input(type="text", name="url", placeholder="URL")
-    input(type="submit", name="submit", value="Submit")
+    input.inline(type="submit", name="submit", value="Submit")

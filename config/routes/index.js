@@ -19,6 +19,7 @@ module.exports = function(app){
   app.put('/users/:id', users.update);
   app.delete('/users/:id', users.delete);
 
+  app.get('/users/:id/images/:imageid', users.images.show);
   app.post('/users/:id/images', middleware.auth.restrict, users.images.create);
   app.delete('/users/:id/images/:imageid', middleware.auth.restrict, users.images.delete);
 };
