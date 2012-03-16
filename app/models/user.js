@@ -54,11 +54,38 @@ module.exports = function(){
       self.destroy(user, callback);
     };
 
+    user.latestImage = function(){
+      var image;
+
+      for(var i = user.imageId; i > -1; i--){
+        if(typeof(user.images[i]) !== 'undefined'){
+          image = user.images[i];
+          image.id = i;
+          break;
+        }
+      }
+
+      return image;
+    };
+
     return user;
   };
   
   self.all = function(callback){
-    db.users.find(callback);
+    db.users.find({}, function(err, docs){
+      var users = [];
+
+      if(err){
+        callback(err);
+        return;
+      }
+
+      for(var i = 0, l = docs.length; i < l; i++){
+        users.push(self.buildUser(docs[i]));
+      }
+
+      callback(null, users);
+    });
   };
 
   self.find = function(id, callback){

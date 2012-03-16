@@ -11,13 +11,5 @@ ul
           form(method="post", action="/users/#{user.path}/images/#{id}")
             input(type="hidden", name="_method", value="delete")
             input(type="submit", name="submit", value="Delete")
-  - if(typeof user.urls !== 'undefined')
-    each url, id in user.urls
-      li
-        a(href="/users/#{user.path}/images/#{id}")
-          img(src="#{imagepath}#{url.path}")
-        br
-        - if(typeof currentUser !== 'undefined')
-          form(method="post", action="/users/#{user.path}/urls/#{id}")
-            input(type="hidden", name="_method", value="delete")
-            input(type="submit", name="submit", value="Delete")
+
+  include _upload_form

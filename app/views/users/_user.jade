@@ -1,0 +1,9 @@
+image = user.latestImage()
+
+h2
+  a(href="/users/#{user.path}")
+    = user.username
+
+  if(typeof image !== 'undefined')
+    a(href="/users/#{user.path}/images/#{image.id}")
+      img(src="#{imagepath}#{image.path}")

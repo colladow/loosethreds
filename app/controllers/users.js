@@ -5,6 +5,18 @@ var userModel = require('../models/user'),
     url       = require('url');
 
 exports.index = function(req, res, next){
+  userModel.all(function(err, users){
+    if(err){
+      next(err);
+      return;
+    }
+
+    res.render('users/index', {
+      users: users,
+      currentUser: req.session.currentUser,
+      imagepath: req.app.settings.imagepath
+    });
+  });
 };
 
 exports.create = function(req, res, next){
@@ -78,7 +90,7 @@ exports.show = function(req, res, next){
 
     user = userModel.buildUser(users[0]);
 
-    res.render('users/show.jade', {
+    res.render('users/show', {
       user: user,
       currentUser: req.session.currentUser,
       imagepath: req.app.settings.imagepath
@@ -123,7 +135,8 @@ exports.images = {
           }
 
           image = {
-            path: path.join(midPath, fname)
+            path: path.join(midPath, fname),
+            created: new Date()
           };
 
           user.images[user.imageId] = image;
@@ -135,7 +148,7 @@ exports.images = {
               return;
             }
 
-            res.redirect('/');
+            res.redirect('/users/' + user.path);
           });
         });
       });
@@ -187,7 +200,7 @@ exports.urls = {
       user.imageId = 0;
     }
 
-    fname = user.urlId + '.' + options.path.split('/').pop();
+    fname = user.imageId + '.' + options.path.split('/').pop();
     file = fs.createWriteStream(path.join(dir, fname));
 
     path.exists(dir, function(exists){
@@ -201,11 +214,12 @@ exports.urls = {
         }).on('end', function(){
           file.end();
 
-          imageUrl = {
-            path: path.join(midPath, fname)
+          image = {
+            path: path.join(midPath, fname),
+            created: new Date()
           };
 
-          user.images[user.imageId] = imageUrl;
+          user.images[user.imageId] = image;
           user.imageId += 1;
 
           user.save(function(err){
@@ -214,7 +228,7 @@ exports.urls = {
               return;
             }
 
-            res.redirect('/');
+            res.redirect('/users/' + user.path);
           });
         });
       });
@@ -222,11 +236,11 @@ exports.urls = {
   },
   delete: function(req, res, next){
     var user  = userModel.buildUser(req.session.currentUser),
-        urlId = req.param('urlid'),
-        imageUrl = user.urls[urlId],
+        imageId = req.param('imageid'),
+        imageUrl = user.images[imageId],
         change = {};
 
-    change['urls.' + urlId] = 1;
+    change['images.' + imageId] = 1;
 
     userModel.update({ path: user.path }, { $unset: change }, {}, function(err){
       if(err){

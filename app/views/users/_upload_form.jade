@@ -1,0 +1,7 @@
+- if(typeof currentUser !== 'undefined')
+  form(method="post", action="/users/#{currentUser.path}/images", enctype="multipart/form-data")
+    input(type="file", name="image")
+    input(type="submit", name="submit", value="Submit")
+  form(method="post", action="/users/#{currentUser.path}/urls")
+    input(type="text", name="url", placeholder="URL")
+    input(type="submit", name="submit", value="Submit")
