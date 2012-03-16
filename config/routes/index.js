@@ -21,5 +21,4 @@ module.exports = function(app){
 
   app.post('/users/:id/images', middleware.auth.restrict, users.images.create);
   app.delete('/users/:id/images/:imageid', middleware.auth.restrict, users.images.delete);
-  app.post('/users/:id/urls', middleware.auth.restrict, users.urls.create);
 };

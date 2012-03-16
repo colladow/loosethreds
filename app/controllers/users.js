@@ -104,57 +104,122 @@ exports.update = function(req, res){
 exports.delete = function(req, res){
 };
 
-exports.images = {
-  index: function(req, res){},
-  create: function(req, res, next){
-    fs.readFile(req.files.image.path, function (err, data) {
-      var user    = userModel.buildUser(req.session.currentUser),
-          midPath = path.join('/images', user.path),
-          dir     = path.join(req.app.settings.imagedir, midPath),
-          fname, filePath;
-          
-      if(typeof user.images === 'undefined'){
-        user.images = {};
-        user.imageId = 0;
-      }
-      
-      fname    = user.imageId + '.' + req.files.image.name;
-      filePath = path.join(dir, fname)
-
-      path.exists(dir, function(exists){
-        if(!exists){
-          fs.mkdirSync(dir);
+exports.images = function(){
+  var self = {},
+      prepareUser = function(user){
+        if(typeof user.images === 'undefined'){
+          user.images = {};
+          user.imageId = 0;
         }
 
-        fs.writeFile(filePath, data, function (err) {
-          var image;
+        return user;
+      },
+      handleFileUpload = function(req, res, next){
+        fs.readFile(req.files.image.path, function (err, data) {
+          var user    = userModel.buildUser(req.session.currentUser),
+              midPath = path.join('/images', user.path),
+              dir     = path.join(req.app.settings.imagedir, midPath),
+              fname, filePath;
+              
+          user = prepareUser(user);
+          
+          fname    = user.imageId + '.' + req.files.image.name;
+          filePath = path.join(dir, fname)
 
-          if(err){
-            next(err);
-            return;
-          }
-
-          image = {
-            path: path.join(midPath, fname),
-            created: new Date()
-          };
-
-          user.images[user.imageId] = image;
-          user.imageId += 1;
-
-          user.save(function(err){
-            if(err){
-              next(err);
-              return;
+          path.exists(dir, function(exists){
+            if(!exists){
+              fs.mkdirSync(dir);
             }
 
-            res.redirect('/users/' + user.path);
+            fs.writeFile(filePath, data, function (err) {
+              var image;
+
+              if(err){
+                next(err);
+                return;
+              }
+
+              image = {
+                path: path.join(midPath, fname),
+                created: new Date()
+              };
+
+              user.addImage(image);
+
+              user.save(function(err){
+                if(err){
+                  next(err);
+                  return;
+                }
+
+                res.redirect('/users/' + user.path);
+              });
+            });
           });
         });
-      });
-    });
-  },
-  delete: function(req, res, next){
+      },
+      handleUrlFile = function(req, res, next){
+        var user = userModel.buildUser(req.session.currentUser),
+            fileUrl = req.param('url'),
+            midPath = path.join('/images', user.path),
+            dir     = path.join(req.app.settings.imagedir, midPath),
+            options = {
+              host: url.parse(fileUrl).host,
+              port: 80,
+              path: url.parse(fileUrl).pathname
+            },
+            imageUrl, fname, file;
+
+        user = prepareUser(user);
+
+        fname = user.imageId + '.' + options.path.split('/').pop();
+        file = fs.createWriteStream(path.join(dir, fname));
+
+        path.exists(dir, function(exists){
+          if(!exists){
+            fs.mkdirSync(dir);
+          }
+
+          http.get(options, function(imageRes){
+            imageRes.on('data', function(data){
+              file.write(data);
+            }).on('end', function(){
+              file.end();
+
+              image = {
+                path: path.join(midPath, fname),
+                created: new Date()
+              };
+
+              user.addImage(image);
+
+              user.save(function(err){
+                if(err){
+                  next(err);
+                  return;
+                }
+
+                res.redirect('/users/' + user.path);
+              });
+            });
+          });
+        });
+      };
+
+  self.index = function(req, res){},
+
+  self.create = function(req, res, next){
+    if(typeof req.param('url') !== 'undefined'){
+      handleUrlFile(req, res, next);
+      return;
+    }
+    if(typeof req.files.image.path !== 'undefined'){
+      handleFileUpload(req, res, next);
+      return;
+    }
+  };
+
+  self.delete = function(req, res, next){
     var user  = userModel.buildUser(req.session.currentUser),
         imageId = req.param('imageid'),
         image = user.images[imageId],
@@ -178,85 +243,7 @@ exports.images = {
         res.redirect('/users/' + user.path);
       });
     });
-  }
-};
+  };
 
-exports.urls = {
-  index: function(){},
-  create: function(req, res, next){
-    var user = userModel.buildUser(req.session.currentUser),
-        fileUrl = req.param('url'),
-        midPath = path.join('/images', user.path),
-        dir     = path.join(req.app.settings.imagedir, midPath),
-        options = {
-          host: url.parse(fileUrl).host,
-          port: 80,
-          path: url.parse(fileUrl).pathname
-        },
-        imageUrl, fname, file;
-
-    if(typeof user.images === 'undefined'){
-      user.images = {};
-      user.imageId = 0;
-    }
-
-    fname = user.imageId + '.' + options.path.split('/').pop();
-    file = fs.createWriteStream(path.join(dir, fname));
-
-    path.exists(dir, function(exists){
-      if(!exists){
-        fs.mkdirSync(dir);
-      }
-
-      http.get(options, function(imageRes){
-        imageRes.on('data', function(data){
-          file.write(data);
-        }).on('end', function(){
-          file.end();
-
-          image = {
-            path: path.join(midPath, fname),
-            created: new Date()
-          };
-
-          user.images[user.imageId] = image;
-          user.imageId += 1;
-
-          user.save(function(err){
-            if(err){
-              next(err);
-              return;
-            }
-
-            res.redirect('/users/' + user.path);
-          });
-        });
-      });
-    });
-  },
-  delete: function(req, res, next){
-    var user  = userModel.buildUser(req.session.currentUser),
-        imageId = req.param('imageid'),
-        imageUrl = user.images[imageId],
-        change = {};
-
-    change['images.' + imageId] = 1;
-
-    userModel.update({ path: user.path }, { $unset: change }, {}, function(err){
-      if(err){
-        next(err);
-        return;
-      }
-
-      fs.unlink(path.join(req.app.settings.imagedir, imageUrl.path), function(err){
-        if(err){
-          next(err);
-          return;
-        }
-
-        req.flash('info', 'The image has been removed successfully.');
-        res.redirect('/users/' + user.path);
-      });
-    });
-  }
-};
+  return self;
+}();

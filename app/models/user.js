@@ -54,6 +54,11 @@ module.exports = function(){
       self.destroy(user, callback);
     };
 
+    user.addImage = function(image){
+      user.images[user.imageId] = image;
+      user.imageId += 1;
+    };
+
     user.latestImage = function(){
       var image;
 

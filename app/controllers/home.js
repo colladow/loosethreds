@@ -1,3 +1,16 @@
+var userModel = require('../models/user');
+
 exports.index = function(req, res){
-  res.render('index', { currentUser: req.session.currentUser });
+  userModel.all(function(err, users){
+    if(err){
+      next(err);
+      return;
+    }
+
+    res.render('users/index', {
+      users: users,
+      currentUser: req.session.currentUser,
+      imagepath: req.app.settings.imagepath
+    });
+  });
 };
