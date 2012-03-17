@@ -6,10 +6,12 @@ ul#user_images
       li.box
         a(href="/users/#{user.path}/images/#{id}")
           img(src="#{imagepath}#{image.path}")
-        - if(typeof currentUser !== 'undefined')
-          form(method="post", action="/users/#{user.path}/images/#{id}")
-            input(type="hidden", name="_method", value="delete")
-            input(type="submit", name="submit", value="Delete")
+        .buttons
+          button.inline Copy
+          - if(typeof currentUser !== 'undefined')
+            form(method="post", action="/users/#{user.path}/images/#{id}")
+              input(type="hidden", name="_method", value="delete")
+              input(type="submit", name="submit", value="Delete")
 
 .clear
 br
